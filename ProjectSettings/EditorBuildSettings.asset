@@ -11,6 +11,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/personaje.unity
     guid: 9213b701c1439304bba7e502a9f0453c
+  - enabled: 1
+    path: Assets/Scenes/pagina01.unity
+    guid: c16f0d3793cee0b429a84a2806b02acd
+  - enabled: 1
+    path: Assets/Scenes/pagina02.unity
+    guid: 4f16e9e929128794baa2893a00ec979a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
