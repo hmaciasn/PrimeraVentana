@@ -1,20 +1,15 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class MoverObjeto : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class MoverObjetoUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public static GameObject myDraggableSprite;
-
-    private Vector3 startPosition;
-    private float zDistanceToCamera;
-    private Vector3 touchOffset;
-    private Camera cam;
-
-    public float moveSpeed = 20f; // ajusta velocidad si quieres suavizado
+    private Vector2 touchOffset;
+    private RectTransform rectTransform;
 
     private void Awake()
     {
-        cam = Camera.main;
+        rectTransform = GetComponent<RectTransform>();
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -22,13 +17,13 @@ public class MoverObjeto : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         if (myDraggableSprite == null)
         {
             myDraggableSprite = gameObject;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                rectTransform.parent as RectTransform,
+                eventData.position,
+                eventData.pressEventCamera,
+                out var localPoint);
 
-            startPosition = transform.position;
-            zDistanceToCamera = Mathf.Abs(startPosition.z - cam.transform.position.z);
-
-            Vector3 screenPos = new Vector3(eventData.position.x, eventData.position.y, zDistanceToCamera);
-            Vector3 worldPos = cam.ScreenToWorldPoint(screenPos);
-            touchOffset = transform.position - worldPos;
+            touchOffset = rectTransform.anchoredPosition - localPoint;
         }
     }
 
@@ -36,14 +31,15 @@ public class MoverObjeto : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         if (myDraggableSprite != gameObject) return;
 
-        Vector3 screenPos = new Vector3(eventData.position.x, eventData.position.y, zDistanceToCamera);
-        Vector3 worldPos = cam.ScreenToWorldPoint(screenPos) + touchOffset;
-
-        // 🔹 Opción 1: movimiento inmediato (rápido y directo)
-        transform.position = worldPos;
-
-        // 🔹 Opción 2: movimiento suavizado (activa esta y comenta la de arriba si quieres)
-        // transform.position = Vector3.Lerp(transform.position, worldPos, Time.deltaTime * moveSpeed);
+        
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            rectTransform.parent as RectTransform,
+            eventData.position,
+            eventData.pressEventCamera,
+            out var localPoint))
+        {
+            rectTransform.anchoredPosition = localPoint + touchOffset;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -52,7 +48,6 @@ public class MoverObjeto : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         {
             myDraggableSprite = null;
         }
-
-        touchOffset = Vector3.zero;
+        touchOffset = Vector2.zero;
     }
 }
